@@ -1,1 +1,16 @@
+#IDE
 .idea
+
+# Exclude generic files.
+docroot/app/etc/config.php
+docroot/app/etc/env.php
+
+docroot/pub/media/*
+docroot/pub/static/*
+docroot/var/cache
+docroot/var/composer_home
+docroot/var/generation
+docroot/var/log
+docroot/var/page_cache
+docroot/var/tmp
+docroot/var/view_preprocessed
