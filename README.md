@@ -26,7 +26,7 @@ Follow [Docksal environment setup instructions](https://github.com/docksal/docks
 
 2. Initialize the site
 
-    This will create administrator and install the site with `./magento php ./magento setup:install` 
+    This will create administrator and install the site with `php ./magento setup:install` 
 
     ```
     fin init
