@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+## Initialize a Docksal powered Wordpress site
+##
+## Usage: fin init
+
+# Abort if anything fails
+set -e
+
+#-------------------------- Settings --------------------------------
+
+# PROJECT_ROOT is passed from fin.
+# The following variables are configured in the '.env' file: DOCROOT, VIRTUAL_HOST.
+
+BIN_PATH="${PROJECT_ROOT}/${DOCROOT}/bin"
+
+#-------------------------- END: Settings --------------------------------
+
+#-------------------------- Helper functions --------------------------------
+
+# Console colors
+red='\033[0;31m'
+green='\033[0;32m'
+green_bg='\033[42m'
+yellow='\033[1;33m'
+NC='\033[0m'
+
+echo-red () { echo -e "${red}$1${NC}"; }
+echo-green () { echo -e "${green}$1${NC}"; }
+echo-green-bg () { echo -e "${green_bg}$1${NC}"; }
+echo-yellow () { echo -e "${yellow}$1${NC}"; }
+
+is_windows ()
+{
+	local res=$(uname | grep 'CYGWIN_NT')
+	if [[ "$res" != "" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+#-------------------------- END: Helper functions --------------------------------
+
+#-------------------------- Functions --------------------------------
+
+# Create user.
+create_user ()
+{
+    cd $BIN_PATH
+    fin exec "php ./magento admin:user:create \
+             --admin-user=${MAGENTO_ADMIN_USER} \
+             --admin-password=${MAGENTO_ADMIN_PASS} \
+             --admin-email=${MAGENTO_ADMIN_EMAIL} \
+             --admin-firstname=${MAGENTO_ADMIN_FIRSTNAME} \
+             --admin-lastname=${MAGENTO_ADMIN_LASTNAME}"
+}
+
+# Install site
+site_install ()
+{
+    cd $BIN_PATH
+    fin exec "php ./magento setup:install \
+    --base-url=http://${VIRTUAL_HOST} \
+    --db-host=${MAGENTO_DB_HOST} \
+    --db-name=${MYSQL_DATABASE} \
+    --db-user=${MYSQL_USER} \
+    --db-password=${MYSQL_PASSWORD} \
+    --admin-firstname=${MAGENTO_ADMIN_FIRSTNAME} \
+    --admin-lastname=${MAGENTO_ADMIN_LASTNAME} \
+    --admin-email=${MAGENTO_ADMIN_EMAIL} \
+    --admin-user=${MAGENTO_ADMIN_USER} \
+    --admin-password=${MAGENTO_ADMIN_PASS} \
+    --language=${MAGENTO_LANGUAGE} \
+    --currency=${MAGENTO_CURRENCY} \
+    --timezone=${MAGENTO_TIMEZONE} \
+    --use-rewrites=${MAGENTO_USE_REWRITES}"
+}
+
+if [[ "$PROJECT_ROOT" == "" ]]; then
+	echo-red "\$PROJECT_ROOT is not set"
+	exit 1
+fi
+
+if [[ $DOCKER_RUNNING == "true" ]]; then
+	echo -e "${green_bg} Step 1 ${NC}${green} Recreating services...${NC}"
+	fin reset -f
+else
+	echo -e "${green_bg} Step 1 ${NC}${green} Creating services...${NC}"
+	fin up
+fi
+
+echo "Waiting 10s for MySQL to initialize...";
+sleep 10
+
+# Project initialization steps
+echo -e "${green_bg} Step 2 ${NC}${green} Generating admin user...${NC}"
+create_user
+
+echo -e "${green_bg} Step 3 ${NC}${green} Installing site...${NC}"
+time site_install
+
+
+if is_windows; then
+	echo-green "Add ${VIRTUAL_HOST} to your hosts file (/etc/hosts), e.g.:"
+	echo-green "192.168.64.100  ${VIRTUAL_HOST}"
+	echo
+fi
+
+echo -en "${green_bg} DONE! ${NC} "
+echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
