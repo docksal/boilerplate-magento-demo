@@ -4,9 +4,11 @@
 # Exclude generic files.
 docroot/app/etc/config.php
 docroot/app/etc/env.php
-
-docroot/pub/media/*
-docroot/pub/static/*
+docroot/pub/media/theme
+docroot/pub/static/_requirejs
+docroot/pub/static/adminhtml
+docroot/pub/static/frontend
+docroot/pub/static/deployed_version.txt
 docroot/var/cache
 docroot/var/composer_home
 docroot/var/generation
