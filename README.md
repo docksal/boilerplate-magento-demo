@@ -1,10 +1,10 @@
 # Docksal powered Magento CE Installation
 
-This is a sample vanilla Magento CE installation pre-configured for use with Docksal.
+This is a sample Magento CE installation with default content pre-configured for use with Docksal.
 
 Features:
 
-- Vanilla Magento CE
+- Magento CE with predefined content
 - `fin init` example
 
 ## Setup instructions
@@ -39,6 +39,15 @@ Follow [Docksal environment setup instructions](https://github.com/docksal/docks
     ```
     http://magento.docksal
     ```
+
+## PHPStorm settings
+
+Exclude next folders from index to improve performance of IDE:
+```
+docroot/pub/media
+docroot/var
+
+```
 
 
 ## More automation with 'fin init'
