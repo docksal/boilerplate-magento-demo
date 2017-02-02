@@ -70,7 +70,8 @@ site_install ()
 fix_permissions ()
 {
     cd $DOCROOT_PATH
-    chmod -R 644 ./app/etc
+    sudo chmod 777 ./app/etc
+    sudo chmod -R 644 ./app/etc/*
 }
 
 if [[ "$PROJECT_ROOT" == "" ]]; then
