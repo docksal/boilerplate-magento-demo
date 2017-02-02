@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Initialize a Docksal powered Wordpress site
+## Initialize a Docksal powered Magento site
 ##
 ## Usage: fin init
 
@@ -12,7 +12,8 @@ set -e
 # PROJECT_ROOT is passed from fin.
 # The following variables are configured in the '.env' file: DOCROOT, VIRTUAL_HOST.
 
-BIN_PATH="${PROJECT_ROOT}/${DOCROOT}/bin"
+DOCROOT_PATH="${PROJECT_ROOT}/${DOCROOT}"
+BIN_PATH="${DOCROOT_PATH}/bin"
 
 #-------------------------- END: Settings --------------------------------
 
@@ -44,18 +45,6 @@ is_windows ()
 
 #-------------------------- Functions --------------------------------
 
-# Create user.
-create_user ()
-{
-    cd $BIN_PATH
-    fin exec "php ./magento admin:user:create \
-             --admin-user=${MAGENTO_ADMIN_USER} \
-             --admin-password=${MAGENTO_ADMIN_PASS} \
-             --admin-email=${MAGENTO_ADMIN_EMAIL} \
-             --admin-firstname=${MAGENTO_ADMIN_FIRSTNAME} \
-             --admin-lastname=${MAGENTO_ADMIN_LASTNAME}"
-}
-
 # Install site
 site_install ()
 {
@@ -77,6 +66,13 @@ site_install ()
     --use-rewrites=${MAGENTO_USE_REWRITES}"
 }
 
+# Fix permissions for security.
+fix_permissions ()
+{
+    cd $DOCROOT_PATH
+    chmod -R 644 ./app/etc
+}
+
 if [[ "$PROJECT_ROOT" == "" ]]; then
 	echo-red "\$PROJECT_ROOT is not set"
 	exit 1
@@ -93,12 +89,11 @@ fi
 echo "Waiting 10s for MySQL to initialize...";
 sleep 10
 
-# Project initialization steps
-echo -e "${green_bg} Step 2 ${NC}${green} Generating admin user...${NC}"
-create_user
-
-echo -e "${green_bg} Step 3 ${NC}${green} Installing site...${NC}"
+echo -e "${green_bg} Step 2 ${NC}${green} Installing site...${NC}"
 time site_install
+
+echo -e "${green_bg} Step 3 ${NC}${green} Fix folder permissions...${NC}"
+time fix_permissions
 
 
 if is_windows; then
@@ -109,3 +104,4 @@ fi
 
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
+echo -e "Username: ${yellow}${MAGENTO_ADMIN_USER}${NC}; password: ${yellow}${MAGENTO_ADMIN_PASS}${NC}."
