@@ -1,6 +1,2 @@
 #IDE
 .idea
-
-# Exclude generic files.
-docroot/app/etc/config.php
-docroot/app/etc/env.php
