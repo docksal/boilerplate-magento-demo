@@ -31,16 +31,6 @@ echo-green () { echo -e "${green}$1${NC}"; }
 echo-green-bg () { echo -e "${green_bg}$1${NC}"; }
 echo-yellow () { echo -e "${yellow}$1${NC}"; }
 
-is_windows ()
-{
-	local res=$(uname | grep 'CYGWIN_NT')
-	if [[ "$res" != "" ]]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 #-------------------------- END: Helper functions --------------------------------
 
 #-------------------------- Functions --------------------------------
@@ -95,13 +85,6 @@ time site_install
 
 echo -e "${green_bg} Step 3 ${NC}${green} Fix folder permissions...${NC}"
 time fix_permissions
-
-
-if is_windows; then
-	echo-green "Add ${VIRTUAL_HOST} to your hosts file (/etc/hosts), e.g.:"
-	echo-green "192.168.64.100  ${VIRTUAL_HOST}"
-	echo
-fi
 
 echo -en "${green_bg} DONE! ${NC} "
 echo -e "Open ${yellow}http://${VIRTUAL_HOST}${NC} in your browser to verify the setup."
